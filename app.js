@@ -5,32 +5,72 @@
  * ============================================================================
  */
 
-// 1. Konfigurasi 9 Mata Kuliah Resmi Semester 3 SIB Polinema
+// 1. Konfigurasi 9 Mata Kuliah Resmi Semester 3 SIB Polinema Sesuai Kurikulum Bos
 const SUBJECT_CONFIG = [
-    { key: "Pemrograman Web", badgeId: "count-web", colorClass: "web" },
-    { key: "Basis Data Lanjut", badgeId: "count-bdl", colorClass: "bdl" },
-    { key: "Pemrograman Berorientasi Objek", badgeId: "count-pbo", colorClass: "pbo" },
-    { key: "Jaringan Komputer", badgeId: "count-jarkom", colorClass: "jarkom" },
-    { key: "Rekayasa Perangkat Lunak", badgeId: "count-rpl", colorClass: "rpl" },
-    { key: "Statistika Komputasi", badgeId: "count-statistika", colorClass: "statistika" },
-    { key: "Project-Based Learning (PBL)", badgeId: "count-pbl", colorClass: "pbl" },
-    { key: "Desain UI/UX", badgeId: "count-uiux", colorClass: "uiux" },
-    { key: "Manajemen Proyek TI", badgeId: "count-manpro", colorClass: "manpro" },
+    { key: "Pemrograman Web (PemWeb)", badgeId: "count-web", colorClass: "web" },
+    { key: "Rekayasa Perangkat Lunak (RPL)", badgeId: "count-rpl", colorClass: "rpl" },
+    { key: "Statistika", badgeId: "count-statistika", colorClass: "statistika" },
+    { key: "UI/UX", badgeId: "count-uiux", colorClass: "uiux" },
+    { key: "Pemrograman Berorientasi Objek (PBO)", badgeId: "count-pbo", colorClass: "pbo" },
+    { key: "Praktikum Pemrograman Berorientasi Objek (Prak PBO)", badgeId: "count-prak-pbo", colorClass: "prak-pbo" },
+    { key: "Jaringan Komputer (JarKom)", badgeId: "count-jarkom", colorClass: "jarkom" },
+    { key: "Praktikum Jaringan Komputer (Prak JarKom)", badgeId: "count-prak-jarkom", colorClass: "prak-jarkom" },
+    { key: "Basis Data Lanjut (BDL)", badgeId: "count-bdl", colorClass: "bdl" },
 ];
+
+function normalizeSubject(subjectName) {
+    if (!subjectName) return "Pemrograman Web (PemWeb)";
+    const str = String(subjectName).trim();
+    if (str === "Pemrograman Web (PemWeb)" || str === "Pemrograman Web" || str.includes("PemWeb")) {
+        return "Pemrograman Web (PemWeb)";
+    }
+    if (str === "Rekayasa Perangkat Lunak (RPL)" || str === "Rekayasa Perangkat Lunak" || str.includes("RPL")) {
+        return "Rekayasa Perangkat Lunak (RPL)";
+    }
+    if (str.includes("Statistika")) {
+        return "Statistika";
+    }
+    if (str.includes("UI/UX") || str.includes("UIUX") || str.includes("Desain UI")) {
+        return "UI/UX";
+    }
+    if (str.includes("Praktikum") && (str.includes("PBO") || str.includes("Objek"))) {
+        return "Praktikum Pemrograman Berorientasi Objek (Prak PBO)";
+    }
+    if (str.includes("PBO") || str.includes("Objek")) {
+        return "Pemrograman Berorientasi Objek (PBO)";
+    }
+    if (str.includes("Praktikum") && (str.includes("JarKom") || str.includes("Jarkom") || str.includes("Jaringan"))) {
+        return "Praktikum Jaringan Komputer (Prak JarKom)";
+    }
+    if (str.includes("JarKom") || str.includes("Jarkom") || str.includes("Jaringan")) {
+        return "Jaringan Komputer (JarKom)";
+    }
+    if (str.includes("Basis Data") || str.includes("BDL")) {
+        return "Basis Data Lanjut (BDL)";
+    }
+    if (str.includes("PBL") || str.includes("Project")) {
+        return "Rekayasa Perangkat Lunak (RPL)";
+    }
+    if (str.includes("Manajemen")) {
+        return "Rekayasa Perangkat Lunak (RPL)";
+    }
+    return str;
+}
 
 function getSubjectColorClass(subjectName) {
     if (!subjectName) return "default";
-    const s = SUBJECT_CONFIG.find((item) => item.key === subjectName);
+    const normalized = normalizeSubject(subjectName);
+    const s = SUBJECT_CONFIG.find((item) => item.key === normalized || item.key === subjectName);
     if (s) return s.colorClass;
-    if (subjectName.includes("Web")) return "web";
-    if (subjectName.includes("Basis Data")) return "bdl";
+    if (subjectName.includes("Praktikum") && (subjectName.includes("PBO") || subjectName.includes("Objek"))) return "prak-pbo";
     if (subjectName.includes("Objek") || subjectName.includes("PBO")) return "pbo";
-    if (subjectName.includes("Jaringan")) return "jarkom";
+    if (subjectName.includes("Praktikum") && (subjectName.includes("Jarkom") || subjectName.includes("Jaringan"))) return "prak-jarkom";
+    if (subjectName.includes("Jaringan") || subjectName.includes("Jarkom")) return "jarkom";
+    if (subjectName.includes("Web") || subjectName.includes("PemWeb")) return "web";
+    if (subjectName.includes("Basis Data") || subjectName.includes("BDL")) return "bdl";
     if (subjectName.includes("Perangkat Lunak") || subjectName.includes("RPL")) return "rpl";
     if (subjectName.includes("Statistika")) return "statistika";
-    if (subjectName.includes("PBL") || subjectName.includes("Project")) return "pbl";
-    if (subjectName.includes("UI/UX")) return "uiux";
-    if (subjectName.includes("Manajemen")) return "manpro";
+    if (subjectName.includes("UI/UX") || subjectName.includes("UIUX")) return "uiux";
     return "default";
 }
 
@@ -73,7 +113,7 @@ function generateStarterTasks() {
     return [
         {
             id: 1,
-            subject: "Basis Data Lanjut",
+            subject: "Basis Data Lanjut (BDL)",
             name: "Normalisasi 3NF & DDL Toko Nafaistore",
             deadline: todayEnd.toISOString(),
             submission: "LMS Polinema",
@@ -82,7 +122,7 @@ function generateStarterTasks() {
         },
         {
             id: 2,
-            subject: "Pemrograman Web",
+            subject: "Pemrograman Web (PemWeb)",
             name: "Jobsheet 09 PHP CRUD & PostgreSQL Session",
             deadline: tomorrowEnd.toISOString(),
             submission: "LMS Polinema & GitHub",
@@ -91,7 +131,7 @@ function generateStarterTasks() {
         },
         {
             id: 3,
-            subject: "Jaringan Komputer",
+            subject: "Praktikum Jaringan Komputer (Prak JarKom)",
             name: "Laporan Praktikum 02 VLAB GNS3 & Wireshark",
             deadline: yesterday.toISOString(),
             submission: "LMS Polinema",
@@ -100,7 +140,7 @@ function generateStarterTasks() {
         },
         {
             id: 4,
-            subject: "Statistika Komputasi",
+            subject: "Statistika",
             name: "Laporan Praktikum Jobsheet 02 Pandas EDA",
             deadline: twoDaysEnd.toISOString(),
             submission: "LMS Polinema",
@@ -109,16 +149,16 @@ function generateStarterTasks() {
         },
         {
             id: 5,
-            subject: "Project-Based Learning (PBL)",
-            name: "Draf Naskah Proposal PBL Toko iPhone Nafaistore (Bab 1-9)",
+            subject: "Rekayasa Perangkat Lunak (RPL)",
+            name: "Diagram Alur & Use Case Spesifikasi Kebutuhan",
             deadline: fourDaysEnd.toISOString(),
-            submission: "LMS Polinema & Dosen Penguji",
+            submission: "LMS Polinema & Dosen",
             is_done: false,
             created_at: new Date().toISOString(),
         },
         {
             id: 6,
-            subject: "Pemrograman Berorientasi Objek",
+            subject: "Praktikum Pemrograman Berorientasi Objek (Prak PBO)",
             name: "Laporan Praktikum Jobsheet 02 Class dan Object Java",
             deadline: yesterday.toISOString(),
             submission: "LMS Polinema",
@@ -216,7 +256,11 @@ async function loadTasks() {
 
             if (error) throw error;
 
-            state.tasks = data || [];
+            const rawData = data || [];
+            state.tasks = rawData.map((t) => ({
+                ...t,
+                subject: normalizeSubject(t.subject),
+            }));
             localStorage.setItem(STORAGE_KEYS.TASKS, JSON.stringify(state.tasks));
             renderAll();
         } catch (err) {
@@ -235,7 +279,14 @@ function loadFromLocalStorage() {
     try {
         const raw = localStorage.getItem(STORAGE_KEYS.TASKS);
         if (raw) {
-            state.tasks = JSON.parse(raw);
+            const parsed = JSON.parse(raw);
+            state.tasks = Array.isArray(parsed)
+                ? parsed.map((t) => ({
+                      ...t,
+                      subject: normalizeSubject(t.subject),
+                  }))
+                : generateStarterTasks();
+            saveToLocalStorage();
         } else {
             state.tasks = generateStarterTasks();
             saveToLocalStorage();
@@ -474,7 +525,8 @@ function renderTasks() {
     // 1. Filter Mata Kuliah
     let filtered = state.tasks;
     if (state.currentSubject !== "all") {
-        filtered = filtered.filter((t) => t.subject === state.currentSubject);
+        const normCurrent = normalizeSubject(state.currentSubject);
+        filtered = filtered.filter((t) => t.subject === state.currentSubject || normalizeSubject(t.subject) === normCurrent);
     }
 
     // 2. Filter Status (Semua | Belum | Selesai)
@@ -491,10 +543,16 @@ function renderTasks() {
     });
 
     // Update Summary Stats
-    const totalCount = state.currentSubject === "all" ? state.tasks.length : state.tasks.filter((t) => t.subject === state.currentSubject).length;
+    const normSubject = normalizeSubject(state.currentSubject);
+    const totalCount =
+        state.currentSubject === "all"
+            ? state.tasks.length
+            : state.tasks.filter((t) => t.subject === state.currentSubject || normalizeSubject(t.subject) === normSubject).length;
 
     const completedCount =
-        state.currentSubject === "all" ? state.tasks.filter((t) => t.is_done).length : state.tasks.filter((t) => t.subject === state.currentSubject && t.is_done).length;
+        state.currentSubject === "all"
+            ? state.tasks.filter((t) => t.is_done).length
+            : state.tasks.filter((t) => (t.subject === state.currentSubject || normalizeSubject(t.subject) === normSubject) && t.is_done).length;
 
     if (dom.statTotalTasks) dom.statTotalTasks.textContent = `${totalCount} Tugas`;
     if (dom.statCompletedTasks) dom.statCompletedTasks.textContent = `${completedCount} Selesai`;
@@ -569,7 +627,7 @@ function updateSubjectBadges() {
     SUBJECT_CONFIG.forEach((item) => {
         const badgeEl = document.getElementById(item.badgeId);
         if (badgeEl) {
-            const count = state.tasks.filter((t) => t.subject === item.key && !t.is_done).length;
+            const count = state.tasks.filter((t) => (t.subject === item.key || normalizeSubject(t.subject) === item.key) && !t.is_done).length;
             badgeEl.textContent = count;
             badgeEl.style.display = count > 0 ? "inline-flex" : "none";
         }

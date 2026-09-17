@@ -802,16 +802,16 @@ body {
     box-shadow: 1.5px 1.5px 0px #000000;
 }
 
-/* 9 Matkul Signature Neobrutalist Pastel Colors */
-.subject-pill.web { background-color: #E9D5FF; }       /* Pemrograman Web: Pastel Purple */
-.subject-pill.bdl { background-color: #BAE6FD; }       /* Basis Data Lanjut: Sky Blue */
-.subject-pill.pbo { background-color: #FED7AA; }       /* PBO Java: Warm Peach / Amber */
-.subject-pill.jarkom { background-color: #A5F3FC; }    /* Jaringan Komputer: Cyan */
-.subject-pill.rpl { background-color: #C7D2FE; }       /* RPL: Indigo */
-.subject-pill.statistika { background-color: #BBF7D0; }/* Statistika Komputasi: Mint Green */
-.subject-pill.pbl { background-color: #FECDD3; }       /* Proyek PBL: Rose */
-.subject-pill.uiux { background-color: #FBCFE8; }      /* Desain UI/UX: Pink */
-.subject-pill.manpro { background-color: #FEF08A; }    /* Manajemen Proyek: Soft Yellow */
+/* 9 Matkul Signature Neobrutalist Pastel Colors Sesuai Kurikulum Bos */
+.subject-pill.web { background-color: #E9D5FF; }        /* Pemrograman Web (PemWeb): Pastel Purple */
+.subject-pill.rpl { background-color: #C7D2FE; }        /* Rekayasa Perangkat Lunak (RPL): Pastel Indigo */
+.subject-pill.statistika { background-color: #BBF7D0; } /* Statistika: Pastel Mint Green */
+.subject-pill.uiux { background-color: #FBCFE8; }       /* UI/UX: Pastel Pink */
+.subject-pill.pbo { background-color: #FED7AA; }        /* PBO: Pastel Warm Peach */
+.subject-pill.prak-pbo { background-color: #FEF08A; }   /* Prak PBO: Pastel Warm Amber Yellow */
+.subject-pill.jarkom { background-color: #A5F3FC; }     /* JarKom: Pastel Aqua Cyan */
+.subject-pill.prak-jarkom { background-color: #99F6E4; }/* Prak JarKom: Pastel Ice Teal */
+.subject-pill.bdl { background-color: #BAE6FD; }        /* Basis Data Lanjut (BDL): Pastel Sky Blue */
 .subject-pill.default { background-color: #E4E4E7; }
 
 /* Badge Deadline (Netral Putih Berbingkai Hitam, Bukan yang Berwarna) */
