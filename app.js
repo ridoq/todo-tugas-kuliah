@@ -82,6 +82,7 @@ const state = {
     supabaseClient: null,
     isCloudConnected: false,
     realtimeChannel: null,
+    isLoggedIn: false,
 };
 
 // 3. LocalStorage Keys
@@ -89,6 +90,7 @@ const STORAGE_KEYS = {
     TASKS: "tugasku_tasks_v2",
     SUPABASE_URL: "tugasku_supabase_url",
     SUPABASE_KEY: "tugasku_supabase_key",
+    AUTH_SESSION: "tugasku_auth_session_v1",
 };
 
 // 4. Data Awal Riil Kuliah Semester 3 (Jika LocalStorage Kosong)
@@ -204,6 +206,22 @@ const dom = {
     emptyTitle: document.getElementById("empty-title"),
     emptyDesc: document.getElementById("empty-desc"),
 
+    // Auth & Login Modal
+    btnAuth: document.getElementById("btn-auth"),
+    authStatusText: document.getElementById("auth-status-text"),
+    authIcon: document.getElementById("auth-icon"),
+    formLockBadge: document.getElementById("form-lock-badge"),
+    formCardContainer: document.getElementById("form-card-container"),
+    loginModal: document.getElementById("login-modal"),
+    loginForm: document.getElementById("login-form"),
+    loginUsername: document.getElementById("login-username"),
+    loginPassword: document.getElementById("login-password"),
+    loginErrorMsg: document.getElementById("login-error-msg"),
+    btnCloseLoginModal: document.getElementById("btn-close-login-modal"),
+    btnCancelLogin: document.getElementById("btn-cancel-login"),
+    btnTogglePassword: document.getElementById("btn-toggle-password"),
+    pwEyeIcon: document.getElementById("pw-eye-icon"),
+
     // Connection & Settings Modal
     connectionBadge: document.getElementById("connection-badge"),
     connectionStatusText: document.getElementById("connection-status-text"),
@@ -228,6 +246,7 @@ const dom = {
 function initApp() {
     setupEventListeners();
     setDefaultDeadlineInput();
+    checkAuthSession();
     checkSavedCloudCredentials();
     loadTasks();
     startLiveCountdownTimer();
@@ -679,6 +698,12 @@ function switchSubject(subjectKey) {
 async function handleAddTask(e) {
     e.preventDefault();
 
+    if (!state.isLoggedIn) {
+        openLoginModal();
+        showToast("Mode Tamu: Silakan masuk sebagai Arhte terlebih dahulu.", "info");
+        return;
+    }
+
     const name = dom.taskNameInput.value.trim();
     const deadlineVal = dom.taskDeadlineInput.value;
     const submission = dom.taskSubmissionInput.value.trim();
@@ -733,6 +758,12 @@ async function handleAddTask(e) {
 }
 
 async function toggleTask(id) {
+    if (!state.isLoggedIn) {
+        openLoginModal();
+        showToast("Mode Tamu: Silakan masuk sebagai Arhte untuk mengubah status tugas.", "info");
+        return;
+    }
+
     const task = state.tasks.find((t) => t.id === id);
     if (!task) return;
 
@@ -755,6 +786,12 @@ async function toggleTask(id) {
 }
 
 async function deleteTask(id) {
+    if (!state.isLoggedIn) {
+        openLoginModal();
+        showToast("Mode Tamu: Silakan masuk sebagai Arhte untuk menghapus tugas.", "info");
+        return;
+    }
+
     const task = state.tasks.find((t) => t.id === id);
     if (!task) return;
 
@@ -778,6 +815,12 @@ async function deleteTask(id) {
 }
 
 async function clearCompletedTasks() {
+    if (!state.isLoggedIn) {
+        openLoginModal();
+        showToast("Mode Tamu: Silakan masuk sebagai Arhte untuk membersihkan tugas.", "info");
+        return;
+    }
+
     const completedCount = state.tasks.filter((t) => t.is_done).length;
     if (completedCount === 0) {
         showToast("Tidak ada tugas yang sudah selesai untuk dibersihkan.", "info");
@@ -959,6 +1002,134 @@ function escapeHtml(text) {
 }
 
 // ============================================================================
+// Autentikasi & Sesi Login (Admin: arhte / asdfghjkl;')
+// Sesi aktif selama 1 minggu (7 hari)
+// ============================================================================
+
+const AUTH_CONFIG = {
+    USERNAME: "arhte",
+    PASSWORD: "asdfghjkl;'",
+    SESSION_DURATION_MS: 7 * 24 * 60 * 60 * 1000, // 1 Minggu
+};
+
+function checkAuthSession() {
+    try {
+        const raw = localStorage.getItem(STORAGE_KEYS.AUTH_SESSION);
+        if (!raw) {
+            state.isLoggedIn = false;
+            updateAuthUI();
+            return;
+        }
+
+        const session = JSON.parse(raw);
+        if (
+            session &&
+            session.username === AUTH_CONFIG.USERNAME &&
+            session.expiresAt &&
+            Date.now() < session.expiresAt
+        ) {
+            state.isLoggedIn = true;
+        } else {
+            // Sesi habis / kedaluwarsa
+            localStorage.removeItem(STORAGE_KEYS.AUTH_SESSION);
+            state.isLoggedIn = false;
+        }
+    } catch (e) {
+        state.isLoggedIn = false;
+    }
+    updateAuthUI();
+}
+
+function updateAuthUI() {
+    if (!dom.btnAuth) return;
+
+    if (state.isLoggedIn) {
+        dom.btnAuth.classList.add("logged-in");
+        dom.btnAuth.title = "Masuk sebagai Arhte (Klik untuk Keluar)";
+        if (dom.authIcon) dom.authIcon.className = "fa-solid fa-user-check";
+        if (dom.authStatusText) dom.authStatusText.textContent = "Arhte";
+        if (dom.formLockBadge) dom.formLockBadge.classList.add("hidden");
+        if (dom.btnAddTask) {
+            dom.btnAddTask.innerHTML = `<i class="fa-solid fa-plus"></i> Simpan Tugas`;
+        }
+        if (dom.formCardContainer) {
+            dom.formCardContainer.classList.remove("guest-mode-locked");
+        }
+    } else {
+        dom.btnAuth.classList.remove("logged-in");
+        dom.btnAuth.title = "Mode Tamu (Klik untuk Masuk)";
+        if (dom.authIcon) dom.authIcon.className = "fa-solid fa-lock";
+        if (dom.authStatusText) dom.authStatusText.textContent = "Masuk";
+        if (dom.formLockBadge) dom.formLockBadge.classList.remove("hidden");
+        if (dom.btnAddTask) {
+            dom.btnAddTask.innerHTML = `<i class="fa-solid fa-lock"></i> Masuk untuk Menambah Tugas`;
+        }
+        if (dom.formCardContainer) {
+            dom.formCardContainer.classList.add("guest-mode-locked");
+        }
+    }
+}
+
+function openLoginModal() {
+    if (!dom.loginModal) return;
+    if (dom.loginErrorMsg) dom.loginErrorMsg.classList.add("hidden");
+    if (dom.loginUsername) dom.loginUsername.value = "";
+    if (dom.loginPassword) dom.loginPassword.value = "";
+    dom.loginModal.classList.remove("hidden");
+    setTimeout(() => {
+        if (dom.loginUsername) dom.loginUsername.focus();
+    }, 60);
+}
+
+function closeLoginModal() {
+    if (!dom.loginModal) return;
+    dom.loginModal.classList.add("hidden");
+}
+
+function handleLoginSubmit(e) {
+    e.preventDefault();
+    const user = dom.loginUsername ? dom.loginUsername.value.trim().toLowerCase() : "";
+    const pass = dom.loginPassword ? dom.loginPassword.value : "";
+
+    if (user === AUTH_CONFIG.USERNAME && pass === AUTH_CONFIG.PASSWORD) {
+        const session = {
+            username: AUTH_CONFIG.USERNAME,
+            loginTime: Date.now(),
+            expiresAt: Date.now() + AUTH_CONFIG.SESSION_DURATION_MS,
+        };
+        localStorage.setItem(STORAGE_KEYS.AUTH_SESSION, JSON.stringify(session));
+        state.isLoggedIn = true;
+        updateAuthUI();
+        closeLoginModal();
+        showToast("Berhasil masuk sebagai Arhte! Sesi aktif selama 1 minggu. ✨", "success");
+        if (dom.taskNameInput) {
+            setTimeout(() => dom.taskNameInput.focus(), 150);
+        }
+    } else {
+        if (dom.loginErrorMsg) {
+            dom.loginErrorMsg.classList.remove("hidden");
+        }
+        if (dom.loginPassword) {
+            dom.loginPassword.value = "";
+            dom.loginPassword.focus();
+        }
+    }
+}
+
+function handleAuthButtonClick() {
+    if (state.isLoggedIn) {
+        if (confirm("Apakah Anda ingin keluar dari akun Arhte dan kembali ke Mode Tamu (Hanya Lihat)?")) {
+            localStorage.removeItem(STORAGE_KEYS.AUTH_SESSION);
+            state.isLoggedIn = false;
+            updateAuthUI();
+            showToast("Anda telah keluar ke Mode Tamu (Hanya Lihat).", "info");
+        }
+    } else {
+        openLoginModal();
+    }
+}
+
+// ============================================================================
 // Event Listeners Setup
 // ============================================================================
 
@@ -971,12 +1142,62 @@ function setupEventListeners() {
         });
     });
 
-    // 2. Form Tambah Tugas
+    // 2. Intercept Form Tambah Tugas untuk Tamu
+    if (dom.formCardContainer) {
+        dom.formCardContainer.addEventListener("click", (e) => {
+            if (!state.isLoggedIn) {
+                if (e.target.closest("input, select, button, label, .form-card-header")) {
+                    e.preventDefault();
+                    if (document.activeElement && document.activeElement.blur) {
+                        document.activeElement.blur();
+                    }
+                    openLoginModal();
+                    showToast("Mode Tamu: Silakan masuk sebagai Arhte terlebih dahulu.", "info");
+                }
+            }
+        });
+    }
+
     if (dom.taskForm) {
         dom.taskForm.addEventListener("submit", handleAddTask);
     }
 
-    // 3. Filter Status Pills
+    // 3. Auth & Login Modal Events
+    if (dom.btnAuth) {
+        dom.btnAuth.addEventListener("click", handleAuthButtonClick);
+    }
+    if (dom.formLockBadge) {
+        dom.formLockBadge.addEventListener("click", () => {
+            if (!state.isLoggedIn) openLoginModal();
+        });
+    }
+    if (dom.loginForm) {
+        dom.loginForm.addEventListener("submit", handleLoginSubmit);
+    }
+    if (dom.btnCloseLoginModal) {
+        dom.btnCloseLoginModal.addEventListener("click", closeLoginModal);
+    }
+    if (dom.btnCancelLogin) {
+        dom.btnCancelLogin.addEventListener("click", closeLoginModal);
+    }
+    if (dom.loginModal) {
+        dom.loginModal.addEventListener("click", (e) => {
+            if (e.target === dom.loginModal) closeLoginModal();
+        });
+    }
+    if (dom.btnTogglePassword && dom.loginPassword && dom.pwEyeIcon) {
+        dom.btnTogglePassword.addEventListener("click", () => {
+            if (dom.loginPassword.type === "password") {
+                dom.loginPassword.type = "text";
+                dom.pwEyeIcon.className = "fa-regular fa-eye-slash";
+            } else {
+                dom.loginPassword.type = "password";
+                dom.pwEyeIcon.className = "fa-regular fa-eye";
+            }
+        });
+    }
+
+    // 4. Filter Status Pills
     dom.filterPills.forEach((pill) => {
         pill.addEventListener("click", () => {
             dom.filterPills.forEach((p) => p.classList.remove("active"));
@@ -986,12 +1207,12 @@ function setupEventListeners() {
         });
     });
 
-    // 4. Tombol Bersihkan Selesai
+    // 5. Tombol Bersihkan Selesai
     if (dom.btnClearCompleted) {
         dom.btnClearCompleted.addEventListener("click", clearCompletedTasks);
     }
 
-    // 5. Settings Modal Supabase
+    // 6. Settings Modal Supabase
     if (dom.btnOpenSettings) dom.btnOpenSettings.addEventListener("click", openModal);
     if (dom.connectionBadge) dom.connectionBadge.addEventListener("click", openModal);
     if (dom.btnCloseModal) dom.btnCloseModal.addEventListener("click", closeModal);
@@ -1001,7 +1222,7 @@ function setupEventListeners() {
         });
     }
 
-    // 6. Simpan Cloud
+    // 7. Simpan Cloud
     if (dom.btnSaveCloud) {
         dom.btnSaveCloud.addEventListener("click", () => {
             const url = dom.supabaseUrlInput.value.trim();
@@ -1014,12 +1235,12 @@ function setupEventListeners() {
         });
     }
 
-    // 7. Putuskan Cloud
+    // 8. Putuskan Cloud
     if (dom.btnDisconnectCloud) {
         dom.btnDisconnectCloud.addEventListener("click", disconnectCloud);
     }
 
-    // 8. Copy SQL Skrip
+    // 9. Copy SQL Skrip
     if (dom.btnCopySql && dom.sqlCode) {
         dom.btnCopySql.addEventListener("click", () => {
             navigator.clipboard
@@ -1029,9 +1250,12 @@ function setupEventListeners() {
         });
     }
 
-    // 9. Shortcut Keyboard Escape
+    // 10. Shortcut Keyboard Escape
     document.addEventListener("keydown", (e) => {
-        if (e.key === "Escape") closeModal();
+        if (e.key === "Escape") {
+            closeModal();
+            closeLoginModal();
+        }
     });
 }
 

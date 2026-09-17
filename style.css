@@ -1108,6 +1108,96 @@ body {
     background: #F4F4F5;
 }
 
+/* Auth Pill & Auth Modal Styling */
+.auth-pill {
+    background: #FFFFFF;
+    color: var(--text-black);
+    cursor: pointer;
+    font-weight: 800;
+    transition: all 0.15s ease;
+}
+
+.auth-pill:hover {
+    background: #F4F4F5;
+    transform: translate(-1px, -1px);
+    box-shadow: var(--shadow-button);
+}
+
+.auth-pill.logged-in {
+    background: var(--lime-accent);
+}
+
+.auth-modal-card {
+    max-width: 440px;
+}
+
+.auth-error-banner {
+    background: #FEE2E2;
+    border: 2px solid var(--border-black);
+    border-radius: var(--radius-sm);
+    padding: 10px 14px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 0.84rem;
+    font-weight: 800;
+    color: #B91C1C;
+    box-shadow: 2px 2px 0px #000000;
+}
+
+.password-input-wrapper {
+    position: relative;
+    display: flex;
+    align-items: center;
+    width: 100%;
+}
+
+.password-input-wrapper .neo-input {
+    width: 100%;
+    padding-right: 44px;
+}
+
+.btn-toggle-pw {
+    position: absolute;
+    right: 12px;
+    background: transparent;
+    border: none;
+    font-size: 1.05rem;
+    color: var(--text-black);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 6px;
+}
+
+.btn-toggle-pw:hover {
+    color: #4B5563;
+}
+
+.form-header-badges {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.lock-badge {
+    background: #FEE2E2 !important;
+    color: #991B1B !important;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.lock-badge:hover {
+    background: #FECDD3 !important;
+}
+
+.form-card.guest-mode-locked {
+    cursor: pointer;
+}
+
 /* Toast Floating */
 .toast {
     position: fixed;
