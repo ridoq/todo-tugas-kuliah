@@ -1,282 +1,283 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="id">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TugasKu — Pengelola Tugas Kuliah Semester 3 SIB Polinema</title>
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Tugasmpek</title>
 
-    <!-- Google Fonts: Plus Jakarta Sans -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@500;600;700;800;900&display=swap" rel="stylesheet">
+        <!-- Google Fonts: Plus Jakarta Sans -->
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+        <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@500;600;700;800;900&display=swap" rel="stylesheet" />
 
-    <!-- Font Awesome Icons -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+        <!-- Font Awesome Icons -->
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
 
-    <!-- Supabase JS Client v2 CDN -->
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+        <!-- Supabase JS Client v2 CDN -->
+        <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
-    <!-- Custom Styling (Neobrutalist Card Style) -->
-    <link rel="stylesheet" href="style.css">
-</head>
-<body>
-
-    <div class="app-container">
-
-        <!-- ==================================================================
+        <!-- Custom Styling (Neobrutalist Card Style) -->
+        <link rel="stylesheet" href="style.css" />
+    </head>
+    <body>
+        <div class="app-container">
+            <!-- ==================================================================
              1. SECTION ATAS: JUDUL & HEADER
              ================================================================== -->
-        <header class="app-header" style="margin: 40px 0px 40px 0px;">
-            <div class="header-left ">
-                <div class="brand-badge ">
-                    <i class="fa-solid fa-graduation-cap brand-icon"></i>
-                    <h1 class="brand-title">Tugas ta anu iki</h1>
-                </div>
-                <!-- <p class="brand-subtitle">Semester 3 &bull; D4 Sistem Informasi Bisnis Polinema</p> -->
-            </div>
-
-            <div class="header-right">
-                <button class="pill-btn connection-pill" id="connection-badge" title="Klik untuk setup Supabase Cloud">
-                    <span class="status-dot"></span>
-                    <span id="connection-status-text">Local Mode</span>
-                </button>
-                <button class="icon-btn" id="btn-open-settings" title="Pengaturan Supabase Cloud">
-                    <i class="fa-solid fa-gear"></i>
-                </button>
-            </div>
-        </header>
-
-        <!-- ==================================================================
-             2. SECTION PENGINGAT TUGAS DENGAN DEADLINE TERDEKAT (HERO BANNER)
-             ================================================================== -->
-        <section class="reminder-section" id="reminder-widget">
-            <div class="reminder-banner" id="reminder-banner-card">
-                <div class="reminder-banner-header">
-                    <div class="reminder-title-wrap">
-                        <div class="banner-icon-badge">
-                            <i class="fa-solid fa-bell"></i>
-                        </div>
-                        <div>
-                            <h2 class="banner-title" id="reminder-banner-title">Pengingat Deadline Terdekat</h2>
-                        </div>
+            <header class="app-header" style="margin: 40px 0px 0px 0px">
+                <div class="header-left">
+                    <div class="brand-badge">
+                        <i class="fa-solid fa-graduation-cap brand-icon"></i>
+                        <h1 class="brand-title">Tugasmpek</h1>
+                        <!-- <p class="brand-description">tugas ta anu iki</p> -->
                     </div>
-                    <span class="banner-tag" id="reminder-count-badge">0 Tugas</span>
+                    <!-- <p class="brand-subtitle" style="margin: 10px 0px;">Tugas ta anu iki</p> -->
                 </div>
 
-                <div class="reminder-items-container" id="reminder-items-container">
-                    <!-- Kartu tugas urgent diisi otomatis via JS -->
-                </div>
-            </div>
-        </section>
-
-        <!-- ==================================================================
-             3. SECTION BUTTON MENU (SEMUA MATKUL WIDTH 100% & 9 MATKUL 3X3 GRID)
-             ================================================================== -->
-        <section class="subjects-nav-section">
-            <div class="section-label">
-                <i class="fa-solid fa-book-bookmark"></i> Pilih Mata Kuliah:
-            </div>
-
-            <!-- Tombol Semua Matkul (Width 100%) -->
-            <button class="subject-btn subject-btn-all active" data-subject="all">
-                <span><i class="fa-solid fa-layer-group"></i> Semua Matkul</span>
-                <span class="badge-count" id="count-all" style="display: none;">0</span>
-            </button>
-
-            <!-- 9 Mata Kuliah (3 Baris x 3 Kolom) -->
-            <div class="subjects-grid">
-                <button class="subject-btn" data-subject="Pemrograman Web">
-                    <span>💻 Pemrograman Web</span>
-                    <span class="badge-count" id="count-web" style="display: none;">0</span>
-                </button>
-                <button class="subject-btn" data-subject="Basis Data Lanjut">
-                    <span>🗄️ Basis Data Lanjut</span>
-                    <span class="badge-count" id="count-bdl" style="display: none;">0</span>
-                </button>
-                <button class="subject-btn" data-subject="Pemrograman Berorientasi Objek">
-                    <span>☕ PBO Java OOP</span>
-                    <span class="badge-count" id="count-pbo" style="display: none;">0</span>
-                </button>
-                <button class="subject-btn" data-subject="Jaringan Komputer">
-                    <span>🌐 Jaringan Komputer</span>
-                    <span class="badge-count" id="count-jarkom" style="display: none;">0</span>
-                </button>
-                <button class="subject-btn" data-subject="Rekayasa Perangkat Lunak">
-                    <span>📐 Rekayasa PL</span>
-                    <span class="badge-count" id="count-rpl" style="display: none;">0</span>
-                </button>
-                <button class="subject-btn" data-subject="Statistika Komputasi">
-                    <span>📊 Statistika Komputasi</span>
-                    <span class="badge-count" id="count-statistika" style="display: none;">0</span>
-                </button>
-                <button class="subject-btn" data-subject="Project-Based Learning (PBL)">
-                    <span>🚀 Proyek PBL</span>
-                    <span class="badge-count" id="count-pbl" style="display: none;">0</span>
-                </button>
-                <button class="subject-btn" data-subject="Desain UI/UX">
-                    <span>🎨 Desain UI/UX</span>
-                    <span class="badge-count" id="count-uiux" style="display: none;">0</span>
-                </button>
-                <button class="subject-btn" data-subject="Manajemen Proyek TI">
-                    <span>📋 Manajemen Proyek</span>
-                    <span class="badge-count" id="count-manpro" style="display: none;">0</span>
-                </button>
-            </div>
-        </section>
-
-        <!-- ==================================================================
-             4. SECTION FORM TAMBAH TUGAS (CARD STYLE NEOBRUTALISM)
-             ================================================================== -->
-        <section class="add-task-section">
-            <div class="neo-card form-card">
-                <div class="form-card-header">
-                    <div class="form-title-wrap">
-                        <i class="fa-solid fa-circle-plus"></i>
-                        <h3 id="form-heading">Tambah Tugas Baru</h3>
-                    </div>
-                    <span class="pill-badge" id="form-subject-badge">Semua Matkul</span>
-                </div>
-
-                <form id="task-form">
-                    <!-- Dropdown pilihan matkul jika di tab Semua Matkul -->
-                    <div class="form-row" id="subject-select-row">
-                        <div class="input-group">
-                            <label for="task-subject-select">Pilih Mata Kuliah:</label>
-                            <select id="task-subject-select" class="neo-input">
-                                <option value="Pemrograman Web">Pemrograman Web</option>
-                                <option value="Basis Data Lanjut">Basis Data Lanjut</option>
-                                <option value="Pemrograman Berorientasi Objek">Pemrograman Berorientasi Objek (PBO)</option>
-                                <option value="Jaringan Komputer">Jaringan Komputer</option>
-                                <option value="Rekayasa Perangkat Lunak">Rekayasa Perangkat Lunak</option>
-                                <option value="Statistika Komputasi">Statistika Komputasi</option>
-                                <option value="Project-Based Learning (PBL)">Project-Based Learning (PBL)</option>
-                                <option value="Desain UI/UX">Desain UI/UX</option>
-                                <option value="Manajemen Proyek TI">Manajemen Proyek TI</option>
-                            </select>
-                        </div>
-                    </div>
-
-                    <div class="form-grid">
-                        <!-- 1. Nama Tugas -->
-                        <div class="input-group flex-2">
-                            <label for="task-name-input"><i class="fa-solid fa-pen"></i> Nama Tugas:</label>
-                            <input type="text" id="task-name-input" class="neo-input" placeholder="Contoh: Laporan Jobsheet 09 CRUD..." required autocomplete="off">
-                        </div>
-
-                        <!-- 2. Deadline -->
-                        <div class="input-group flex-1">
-                            <label for="task-deadline-input"><i class="fa-regular fa-calendar-clock"></i> Deadline:</label>
-                            <input type="datetime-local" id="task-deadline-input" class="neo-input" required>
-                        </div>
-
-                        <!-- 3. Pengumpulan -->
-                        <div class="input-group flex-1">
-                            <label for="task-submission-input"><i class="fa-solid fa-arrow-up-from-bracket"></i> Pengumpulan:</label>
-                            <input type="text" id="task-submission-input" class="neo-input" list="submission-options" placeholder="Contoh: LMS Polinema..." required autocomplete="off">
-                            <datalist id="submission-options">
-                                <option value="LMS Polinema">
-                                <option value="Google Classroom">
-                                <option value="GitHub (Link Repo)">
-                                <option value="Email Dosen">
-                                <option value="Hardcopy / Offline di Kelas">
-                                <option value="Google Drive Link">
-                            </datalist>
-                        </div>
-                    </div>
-
-                    <div class="form-actions">
-                        <button type="submit" class="neo-btn btn-primary" id="btn-add-task">
-                            <i class="fa-solid fa-plus"></i> Simpan Tugas
-                        </button>
-                    </div>
-                </form>
-            </div>
-        </section>
-
-        <!-- ==================================================================
-             5. SECTION DAFTAR TUGAS DARI MENU TERSEBUT
-             ================================================================== -->
-        <section class="task-list-section">
-            <div class="list-toolbar">
-                <div class="toolbar-left">
-                    <h3 class="list-heading" id="current-view-title">Daftar Tugas</h3>
-                    <div class="tasks-summary">
-                        <span id="stat-total-tasks">0 Tugas</span> &bull; <span id="stat-completed-tasks">0 Selesai</span>
-                    </div>
-                </div>
-
-                <div class="toolbar-right">
-                    <!-- Filter Status Pills -->
-                    <div class="filter-pill-group">
-                        <button class="filter-pill active" data-filter="all">Semua</button>
-                        <button class="filter-pill" data-filter="active">Belum</button>
-                        <button class="filter-pill" data-filter="completed">Selesai</button>
-                    </div>
-
-                    <!-- Tombol Bersihkan Selesai -->
-                    <button class="neo-btn-sm btn-clear" id="btn-clear-completed" title="Bersihkan tugas yang selesai">
-                        <i class="fa-regular fa-trash-can"></i> Bersihkan
+                <div class="header-right">
+                    <button class="pill-btn connection-pill" id="connection-badge" title="Klik untuk setup Supabase Cloud">
+                        <span class="status-dot"></span>
+                        <span id="connection-status-text">Local Mode</span>
+                    </button>
+                    <button class="icon-btn" id="btn-open-settings" title="Pengaturan Supabase Cloud">
+                        <i class="fa-solid fa-gear"></i>
                     </button>
                 </div>
-            </div>
+            </header>
 
-            <!-- Loading Spinner -->
-            <div class="loading-state hidden" id="loading-spinner">
-                <i class="fa-solid fa-circle-notch fa-spin"></i>
-                <span>Memuat data tugas...</span>
-            </div>
+            <!-- ==================================================================
+             2. SECTION PENGINGAT TUGAS DENGAN DEADLINE TERDEKAT (HERO BANNER)
+             ================================================================== -->
+            <section class="reminder-section" id="reminder-widget">
+                <div class="reminder-banner" id="reminder-banner-card">
+                    <div class="reminder-banner-header">
+                        <div class="reminder-title-wrap">
+                            <div class="banner-icon-badge">
+                                <i class="fa-solid fa-bell"></i>
+                            </div>
+                            <div>
+                                <h2 class="banner-title" id="reminder-banner-title">Deadline e tellll!!</h2>
+                            </div>
+                        </div>
+                        <span class="banner-tag" id="reminder-count-badge">0 Tugas</span>
+                    </div>
 
-            <!-- Tasks Container -->
-            <div class="tasks-container" id="tasks-container">
-                <!-- Kartu tugas diisi via JS -->
-            </div>
+                    <div class="reminder-items-container" id="reminder-items-container">
+                        <!-- Kartu tugas urgent diisi otomatis via JS -->
+                    </div>
+                </div>
+            </section>
 
-            <!-- Empty State -->
-            <div class="empty-state hidden" id="empty-state">
-                <div class="empty-icon"><i class="fa-solid fa-clipboard-check"></i></div>
-                <h4 id="empty-title">Belum ada tugas untuk mata kuliah ini</h4>
-                <p id="empty-desc">Semua tugas beres atau belum ada tugas yang dicatat. Santai dulu, Bos!</p>
-            </div>
-        </section>
+            <!-- ==================================================================
+             3. SECTION BUTTON MENU (SEMUA MATKUL WIDTH 100% & 9 MATKUL 3X3 GRID)
+             ================================================================== -->
+            <section class="subjects-nav-section">
+                <div class="section-label"><i class="fa-solid fa-book-bookmark"></i> Pilih Mata Kuliah:</div>
 
-    </div>
+                <!-- Tombol Semua Matkul (Width 100%) -->
+                <button class="subject-btn subject-btn-all active" data-subject="all">
+                    <span><i class="fa-solid fa-layer-group"></i> Semua Matkul</span>
+                    <span class="badge-count" id="count-all" style="display: none">0</span>
+                </button>
 
-    <!-- ==================================================================
+                <!-- 9 Mata Kuliah (3 Baris x 3 Kolom) -->
+                <div class="subjects-grid">
+                    <button class="subject-btn" data-subject="Pemrograman Web">
+                        <span>💻 Pemrograman Web</span>
+                        <span class="badge-count" id="count-web" style="display: none">0</span>
+                    </button>
+                    <button class="subject-btn" data-subject="Basis Data Lanjut">
+                        <span>🗄️ Basis Data Lanjut</span>
+                        <span class="badge-count" id="count-bdl" style="display: none">0</span>
+                    </button>
+                    <button class="subject-btn" data-subject="Pemrograman Berorientasi Objek">
+                        <span>☕ PBO Java OOP</span>
+                        <span class="badge-count" id="count-pbo" style="display: none">0</span>
+                    </button>
+                    <button class="subject-btn" data-subject="Jaringan Komputer">
+                        <span>🌐 Jaringan Komputer</span>
+                        <span class="badge-count" id="count-jarkom" style="display: none">0</span>
+                    </button>
+                    <button class="subject-btn" data-subject="Rekayasa Perangkat Lunak">
+                        <span>📐 Rekayasa PL</span>
+                        <span class="badge-count" id="count-rpl" style="display: none">0</span>
+                    </button>
+                    <button class="subject-btn" data-subject="Statistika Komputasi">
+                        <span>📊 Statistika Komputasi</span>
+                        <span class="badge-count" id="count-statistika" style="display: none">0</span>
+                    </button>
+                    <button class="subject-btn" data-subject="Project-Based Learning (PBL)">
+                        <span>🚀 Proyek PBL</span>
+                        <span class="badge-count" id="count-pbl" style="display: none">0</span>
+                    </button>
+                    <button class="subject-btn" data-subject="Desain UI/UX">
+                        <span>🎨 Desain UI/UX</span>
+                        <span class="badge-count" id="count-uiux" style="display: none">0</span>
+                    </button>
+                    <button class="subject-btn" data-subject="Manajemen Proyek TI">
+                        <span>📋 Manajemen Proyek</span>
+                        <span class="badge-count" id="count-manpro" style="display: none">0</span>
+                    </button>
+                </div>
+            </section>
+
+            <!-- ==================================================================
+             4. SECTION FORM TAMBAH TUGAS (CARD STYLE NEOBRUTALISM)
+             ================================================================== -->
+            <section class="add-task-section">
+                <div class="neo-card form-card">
+                    <div class="form-card-header">
+                        <div class="form-title-wrap">
+                            <i class="fa-solid fa-circle-plus"></i>
+                            <h3 id="form-heading">Tambah Tugas Baru</h3>
+                        </div>
+                        <span class="pill-badge" id="form-subject-badge">Semua Matkul</span>
+                    </div>
+
+                    <form id="task-form">
+                        <!-- Dropdown pilihan matkul jika di tab Semua Matkul -->
+                        <div class="form-row" id="subject-select-row">
+                            <div class="input-group">
+                                <label for="task-subject-select">Pilih Mata Kuliah:</label>
+                                <select id="task-subject-select" class="neo-input">
+                                    <option value="Pemrograman Web">Pemrograman Web</option>
+                                    <option value="Basis Data Lanjut">Basis Data Lanjut</option>
+                                    <option value="Pemrograman Berorientasi Objek">Pemrograman Berorientasi Objek (PBO)</option>
+                                    <option value="Jaringan Komputer">Jaringan Komputer</option>
+                                    <option value="Rekayasa Perangkat Lunak">Rekayasa Perangkat Lunak</option>
+                                    <option value="Statistika Komputasi">Statistika Komputasi</option>
+                                    <option value="Project-Based Learning (PBL)">Project-Based Learning (PBL)</option>
+                                    <option value="Desain UI/UX">Desain UI/UX</option>
+                                    <option value="Manajemen Proyek TI">Manajemen Proyek TI</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="form-grid">
+                            <!-- 1. Nama Tugas -->
+                            <div class="input-group flex-2">
+                                <label for="task-name-input"><i class="fa-solid fa-pen"></i> Nama Tugas:</label>
+                                <input type="text" id="task-name-input" class="neo-input" placeholder="Contoh: Laporan Jobsheet 09 CRUD..." required autocomplete="off" />
+                            </div>
+
+                            <!-- 2. Deadline -->
+                            <div class="input-group flex-1">
+                                <label for="task-deadline-input"><i class="fa-regular fa-calendar-clock"></i> Deadline:</label>
+                                <input type="datetime-local" id="task-deadline-input" class="neo-input" required />
+                            </div>
+
+                            <!-- 3. Pengumpulan -->
+                            <div class="input-group flex-1">
+                                <label for="task-submission-input"><i class="fa-solid fa-arrow-up-from-bracket"></i> Pengumpulan:</label>
+                                <input
+                                    type="text"
+                                    id="task-submission-input"
+                                    class="neo-input"
+                                    list="submission-options"
+                                    placeholder="Contoh: LMS Polinema..."
+                                    required
+                                    autocomplete="off"
+                                />
+                                <datalist id="submission-options">
+                                    <option value="LMS Polinema"></option>
+                                    <option value="Google Classroom"></option>
+                                    <option value="GitHub (Link Repo)"></option>
+                                    <option value="Email Dosen"></option>
+                                    <option value="Hardcopy / Offline di Kelas"></option>
+                                    <option value="Google Drive Link"></option>
+                                </datalist>
+                            </div>
+                        </div>
+
+                        <div class="form-actions">
+                            <button type="submit" class="neo-btn btn-primary" id="btn-add-task"><i class="fa-solid fa-plus"></i> Simpan Tugas</button>
+                        </div>
+                    </form>
+                </div>
+            </section>
+
+            <!-- ==================================================================
+             5. SECTION DAFTAR TUGAS DARI MENU TERSEBUT
+             ================================================================== -->
+            <section class="task-list-section">
+                <div class="list-toolbar">
+                    <div class="toolbar-left">
+                        <h3 class="list-heading" id="current-view-title">Daftar Tugas</h3>
+                        <div class="tasks-summary"><span id="stat-total-tasks">0 Tugas</span> &bull; <span id="stat-completed-tasks">0 Selesai</span></div>
+                    </div>
+
+                    <div class="toolbar-right">
+                        <!-- Filter Status Pills -->
+                        <div class="filter-pill-group">
+                            <button class="filter-pill active" data-filter="all">Semua</button>
+                            <button class="filter-pill" data-filter="active">Belum</button>
+                            <button class="filter-pill" data-filter="completed">Selesai</button>
+                        </div>
+
+                        <!-- Tombol Bersihkan Selesai -->
+                        <button class="neo-btn-sm btn-clear" id="btn-clear-completed" title="Bersihkan tugas yang selesai">
+                            <i class="fa-regular fa-trash-can"></i> Bersihkan
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Loading Spinner -->
+                <div class="loading-state hidden" id="loading-spinner">
+                    <i class="fa-solid fa-circle-notch fa-spin"></i>
+                    <span>Memuat data tugas...</span>
+                </div>
+
+                <!-- Tasks Container -->
+                <div class="tasks-container" id="tasks-container">
+                    <!-- Kartu tugas diisi via JS -->
+                </div>
+
+                <!-- Empty State -->
+                <div class="empty-state hidden" id="empty-state">
+                    <div class="empty-icon"><i class="fa-solid fa-clipboard-check"></i></div>
+                    <h4 id="empty-title">Belum ada tugas untuk mata kuliah ini</h4>
+                    <p id="empty-desc">Semua tugas beres atau belum ada tugas yang dicatat. Santai dulu, Bos!</p>
+                </div>
+            </section>
+        </div>
+
+        <!-- ==================================================================
          MODAL SETTINGS SUPABASE CLOUD (NEOBRUTALIST MODAL)
          ================================================================== -->
-    <div id="settings-modal" class="modal-backdrop hidden">
-        <div class="neo-modal-card">
-            <div class="modal-header">
-                <div class="modal-title-wrap">
-                    <i class="fa-solid fa-cloud"></i>
-                    <h3>Pengaturan Supabase Cloud</h3>
-                </div>
-                <button id="btn-close-modal" class="modal-close-btn" title="Tutup">
-                    <i class="fa-solid fa-xmark"></i>
-                </button>
-            </div>
-
-            <div class="modal-body">
-                <p class="modal-desc">
-                    Hubungkan TugasKu ke database <strong>PostgreSQL Supabase gratis</strong> agar tugas kuliahmu tersimpan permanen di cloud dan bisa sinkron otomatis antara HP &amp; laptop secara real-time.
-                </p>
-
-                <div class="input-group">
-                    <label for="supabase-url">Project URL:</label>
-                    <input type="text" id="supabase-url" class="neo-input" placeholder="https://xyzproject.supabase.co">
-                </div>
-
-                <div class="input-group">
-                    <label for="supabase-key">Anon Public API Key:</label>
-                    <input type="password" id="supabase-key" class="neo-input" placeholder="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...">
-                </div>
-
-                <div class="sql-box">
-                    <div class="sql-box-header">
-                        <span>Skrip SQL Tabel `tugas_kuliah`</span>
-                        <button type="button" id="btn-copy-sql" class="neo-btn-sm btn-copy">Salin SQL</button>
+        <div id="settings-modal" class="modal-backdrop hidden">
+            <div class="neo-modal-card">
+                <div class="modal-header">
+                    <div class="modal-title-wrap">
+                        <i class="fa-solid fa-cloud"></i>
+                        <h3>Pengaturan Supabase Cloud</h3>
                     </div>
-                    <pre><code id="sql-code">CREATE TABLE IF NOT EXISTS public.tugas_kuliah (
+                    <button id="btn-close-modal" class="modal-close-btn" title="Tutup">
+                        <i class="fa-solid fa-xmark"></i>
+                    </button>
+                </div>
+
+                <div class="modal-body">
+                    <p class="modal-desc">
+                        Hubungkan TugasKu ke database <strong>PostgreSQL Supabase gratis</strong> agar tugas kuliahmu tersimpan permanen di cloud dan bisa sinkron otomatis antara
+                        HP &amp; laptop secara real-time.
+                    </p>
+
+                    <div class="input-group">
+                        <label for="supabase-url">Project URL:</label>
+                        <input type="text" id="supabase-url" class="neo-input" placeholder="https://xyzproject.supabase.co" />
+                    </div>
+
+                    <div class="input-group">
+                        <label for="supabase-key">Anon Public API Key:</label>
+                        <input type="password" id="supabase-key" class="neo-input" placeholder="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..." />
+                    </div>
+
+                    <div class="sql-box">
+                        <div class="sql-box-header">
+                            <span>Skrip SQL Tabel `tugas_kuliah`</span>
+                            <button type="button" id="btn-copy-sql" class="neo-btn-sm btn-copy">Salin SQL</button>
+                        </div>
+                        <pre><code id="sql-code">CREATE TABLE IF NOT EXISTS public.tugas_kuliah (
   id BIGINT GENERATED BY DEFAULT AS IDENTITY PRIMARY KEY,
   subject TEXT NOT NULL,
   name TEXT NOT NULL,
@@ -293,20 +294,20 @@ FOR ALL USING (true) WITH CHECK (true);
 
 -- Aktifkan Real-Time Live Sync
 ALTER PUBLICATION supabase_realtime ADD TABLE public.tugas_kuliah;</code></pre>
+                    </div>
+                </div>
+
+                <div class="modal-footer">
+                    <button id="btn-disconnect-cloud" class="neo-btn btn-secondary">Gunakan Local Saja</button>
+                    <button id="btn-save-cloud" class="neo-btn btn-primary">Simpan &amp; Hubungkan</button>
                 </div>
             </div>
-
-            <div class="modal-footer">
-                <button id="btn-disconnect-cloud" class="neo-btn btn-secondary">Gunakan Local Saja</button>
-                <button id="btn-save-cloud" class="neo-btn btn-primary">Simpan &amp; Hubungkan</button>
-            </div>
         </div>
-    </div>
 
-    <!-- TOAST NOTIFIKASI -->
-    <div id="toast" class="toast hidden"></div>
+        <!-- TOAST NOTIFIKASI -->
+        <div id="toast" class="toast hidden"></div>
 
-    <!-- JS UTAMA -->
-    <script src="app.js"></script>
-</body>
+        <!-- JS UTAMA -->
+        <script src="app.js"></script>
+    </body>
 </html>
