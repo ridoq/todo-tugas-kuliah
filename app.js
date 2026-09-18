@@ -7,25 +7,31 @@
 
 // 1. Konfigurasi 9 Mata Kuliah Resmi Semester 3 SIB Polinema Sesuai Kurikulum Bos
 const SUBJECT_CONFIG = [
-    { key: "Pemrograman Web (PemWeb)", badgeId: "count-web", colorClass: "web" },
-    { key: "Rekayasa Perangkat Lunak (RPL)", badgeId: "count-rpl", colorClass: "rpl" },
+    { key: "PemWeb", badgeId: "count-web", colorClass: "web" },
+    { key: "RPL", badgeId: "count-rpl", colorClass: "rpl" },
     { key: "Statistika", badgeId: "count-statistika", colorClass: "statistika" },
     { key: "UI/UX", badgeId: "count-uiux", colorClass: "uiux" },
-    { key: "Pemrograman Berorientasi Objek (PBO)", badgeId: "count-pbo", colorClass: "pbo" },
-    { key: "Praktikum Pemrograman Berorientasi Objek (Prak PBO)", badgeId: "count-prak-pbo", colorClass: "prak-pbo" },
-    { key: "Jaringan Komputer (JarKom)", badgeId: "count-jarkom", colorClass: "jarkom" },
-    { key: "Praktikum Jaringan Komputer (Prak JarKom)", badgeId: "count-prak-jarkom", colorClass: "prak-jarkom" },
-    { key: "Basis Data Lanjut (BDL)", badgeId: "count-bdl", colorClass: "bdl" },
+    { key: "PBO", badgeId: "count-pbo", colorClass: "pbo" },
+    { key: "Prak PBO", badgeId: "count-prak-pbo", colorClass: "prak-pbo" },
+    { key: "JarKom", badgeId: "count-jarkom", colorClass: "jarkom" },
+    { key: "Prak JarKom", badgeId: "count-prak-jarkom", colorClass: "prak-jarkom" },
+    { key: "BDL", badgeId: "count-bdl", colorClass: "bdl" },
 ];
 
+// Konfigurasi Default Supabase Cloud (Auto-Connect di seluruh device/HP)
+const DEFAULT_SUPABASE_CONFIG = {
+    URL: "https://tdpiuusurfowetdwjurf.supabase.co",
+    KEY: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRkcGl1dXN1cmZvd2V0ZHdqdXJmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODk2MjY3NjMsImV4cCI6MjEwNTIwMjc2M30.yCMSOUUzbuNZ3a_x4JzVL6F_0KzksrZ_iMRgPMAXync",
+};
+
 function normalizeSubject(subjectName) {
-    if (!subjectName) return "Pemrograman Web (PemWeb)";
+    if (!subjectName) return "PemWeb";
     const str = String(subjectName).trim();
-    if (str === "Pemrograman Web (PemWeb)" || str === "Pemrograman Web" || str.includes("PemWeb")) {
-        return "Pemrograman Web (PemWeb)";
+    if (str === "PemWeb" || str.includes("PemWeb") || str.includes("Web")) {
+        return "PemWeb";
     }
-    if (str === "Rekayasa Perangkat Lunak (RPL)" || str === "Rekayasa Perangkat Lunak" || str.includes("RPL")) {
-        return "Rekayasa Perangkat Lunak (RPL)";
+    if (str === "RPL" || str.includes("RPL") || str.includes("Perangkat Lunak") || str.includes("PBL") || str.includes("Project") || str.includes("Manajemen")) {
+        return "RPL";
     }
     if (str.includes("Statistika")) {
         return "Statistika";
@@ -34,25 +40,19 @@ function normalizeSubject(subjectName) {
         return "UI/UX";
     }
     if (str.includes("Praktikum") && (str.includes("PBO") || str.includes("Objek"))) {
-        return "Praktikum Pemrograman Berorientasi Objek (Prak PBO)";
+        return "Prak PBO";
     }
     if (str.includes("PBO") || str.includes("Objek")) {
-        return "Pemrograman Berorientasi Objek (PBO)";
+        return "PBO";
     }
     if (str.includes("Praktikum") && (str.includes("JarKom") || str.includes("Jarkom") || str.includes("Jaringan"))) {
-        return "Praktikum Jaringan Komputer (Prak JarKom)";
+        return "Prak JarKom";
     }
     if (str.includes("JarKom") || str.includes("Jarkom") || str.includes("Jaringan")) {
-        return "Jaringan Komputer (JarKom)";
+        return "JarKom";
     }
     if (str.includes("Basis Data") || str.includes("BDL")) {
-        return "Basis Data Lanjut (BDL)";
-    }
-    if (str.includes("PBL") || str.includes("Project")) {
-        return "Rekayasa Perangkat Lunak (RPL)";
-    }
-    if (str.includes("Manajemen")) {
-        return "Rekayasa Perangkat Lunak (RPL)";
+        return "BDL";
     }
     return str;
 }
@@ -93,81 +93,9 @@ const STORAGE_KEYS = {
     AUTH_SESSION: "tugasku_auth_session_v1",
 };
 
-// 4. Data Awal Riil Kuliah Semester 3 (Jika LocalStorage Kosong)
+// 4. Data Awal Kuliah Semester 3 (Langsung ambil dari Supabase Cloud)
 function generateStarterTasks() {
-    const now = new Date();
-
-    // Hari ini jam 23:59
-    const todayEnd = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 23, 59, 0);
-
-    // Besok jam 23:59
-    const tomorrowEnd = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1, 23, 59, 0);
-
-    // Lusa jam 17:00
-    const twoDaysEnd = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 2, 17, 0, 0);
-
-    // Kemarin (Overdue contoh visual)
-    const yesterday = new Date(now.getFullYear(), now.getMonth(), now.getDate() - 1, 22, 0, 0);
-
-    // 4 hari ke depan
-    const fourDaysEnd = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 4, 15, 0, 0);
-
-    return [
-        {
-            id: 1,
-            subject: "Basis Data Lanjut (BDL)",
-            name: "Normalisasi 3NF & DDL Toko Nafaistore",
-            deadline: todayEnd.toISOString(),
-            submission: "LMS Polinema",
-            is_done: false,
-            created_at: new Date(Date.now() - 7200000).toISOString(),
-        },
-        {
-            id: 2,
-            subject: "Pemrograman Web (PemWeb)",
-            name: "Jobsheet 09 PHP CRUD & PostgreSQL Session",
-            deadline: tomorrowEnd.toISOString(),
-            submission: "LMS Polinema & GitHub",
-            is_done: false,
-            created_at: new Date(Date.now() - 86400000).toISOString(),
-        },
-        {
-            id: 3,
-            subject: "Praktikum Jaringan Komputer (Prak JarKom)",
-            name: "Laporan Praktikum 02 VLAB GNS3 & Wireshark",
-            deadline: yesterday.toISOString(),
-            submission: "LMS Polinema",
-            is_done: false,
-            created_at: new Date(Date.now() - 172800000).toISOString(),
-        },
-        {
-            id: 4,
-            subject: "Statistika",
-            name: "Laporan Praktikum Jobsheet 02 Pandas EDA",
-            deadline: twoDaysEnd.toISOString(),
-            submission: "LMS Polinema",
-            is_done: false,
-            created_at: new Date().toISOString(),
-        },
-        {
-            id: 5,
-            subject: "Rekayasa Perangkat Lunak (RPL)",
-            name: "Diagram Alur & Use Case Spesifikasi Kebutuhan",
-            deadline: fourDaysEnd.toISOString(),
-            submission: "LMS Polinema & Dosen",
-            is_done: false,
-            created_at: new Date().toISOString(),
-        },
-        {
-            id: 6,
-            subject: "Praktikum Pemrograman Berorientasi Objek (Prak PBO)",
-            name: "Laporan Praktikum Jobsheet 02 Class dan Object Java",
-            deadline: yesterday.toISOString(),
-            submission: "LMS Polinema",
-            is_done: true,
-            created_at: new Date(Date.now() - 259200000).toISOString(),
-        },
-    ];
+    return [];
 }
 
 // 5. DOM Elements Cache
@@ -243,12 +171,14 @@ const dom = {
 // Engine & Data Management
 // ============================================================================
 
-function initApp() {
+async function initApp() {
     setupEventListeners();
     setDefaultDeadlineInput();
     checkAuthSession();
-    checkSavedCloudCredentials();
-    loadTasks();
+    await checkSavedCloudCredentials();
+    if (!state.isCloudConnected) {
+        loadTasks();
+    }
     startLiveCountdownTimer();
 }
 
@@ -304,15 +234,15 @@ function loadFromLocalStorage() {
                       ...t,
                       subject: normalizeSubject(t.subject),
                   }))
-                : generateStarterTasks();
+                : [];
             saveToLocalStorage();
         } else {
-            state.tasks = generateStarterTasks();
+            state.tasks = [];
             saveToLocalStorage();
         }
     } catch (e) {
         console.error("Gagal membaca LocalStorage:", e);
-        state.tasks = generateStarterTasks();
+        state.tasks = [];
     }
     renderAll();
 }
@@ -354,7 +284,7 @@ function formatLiveCountdown(deadlineIsoStr, isDone) {
         timeStr = `${pad(hours)} : ${pad(minutes)} : ${pad(seconds)}`;
     }
 
-    return isPast ? `Terlewat ${timeStr}` : `${timeStr}`;
+    return isPast ? `Ndang Garap!` : `${timeStr}`;
 }
 
 function startLiveCountdownTimer() {
@@ -504,8 +434,8 @@ function renderDeadlineReminder() {
                             <div class="reminder-task-meta">
                                 <span class="subject-pill ${subjectColor}">${escapeHtml(task.subject)}</span>
                                 <span class="deadline-pill">${info.badgeText}</span>
-                                <span class="reminder-submission">
-                                    <i class="fa-solid fa-arrow-up-from-bracket"></i> ${escapeHtml(task.submission)}
+                                <span class="reminder-submission ${hasSubmissionLink(task.submission) ? "has-link" : ""}">
+                                    ${formatSubmissionHtml(task.submission)}
                                 </span>
                             </div>
                         </div>
@@ -564,9 +494,7 @@ function renderTasks() {
     // Update Summary Stats
     const normSubject = normalizeSubject(state.currentSubject);
     const totalCount =
-        state.currentSubject === "all"
-            ? state.tasks.length
-            : state.tasks.filter((t) => t.subject === state.currentSubject || normalizeSubject(t.subject) === normSubject).length;
+        state.currentSubject === "all" ? state.tasks.length : state.tasks.filter((t) => t.subject === state.currentSubject || normalizeSubject(t.subject) === normSubject).length;
 
     const completedCount =
         state.currentSubject === "all"
@@ -608,17 +536,17 @@ function renderTasks() {
                     </div>
 
                     <div class="task-content">
+                    <div class="task-title">${escapeHtml(task.name)}</div>
                         <div class="task-header-tags">
-                            <span class="subject-pill ${subjectColor}">${escapeHtml(task.subject)}</span>
-                            ${deadlineDisplay}
                         </div>
-
-                        <div class="task-title">${escapeHtml(task.name)}</div>
-
+                        
+                        
                         <div class="task-meta">
-                            <span class="submission-tag">
-                                <i class="fa-solid fa-arrow-up-from-bracket"></i> ${escapeHtml(task.submission)}
-                            </span>
+                        <span class="subject-pill ${subjectColor}">${escapeHtml(task.subject)}</span>
+                        <span class="submission-tag ${hasSubmissionLink(task.submission) ? "has-link" : ""}">
+                        ${formatSubmissionHtml(task.submission)}
+                        </span>
+                        ${deadlineDisplay}
                         </div>
                     </div>
 
@@ -852,12 +780,12 @@ window.deleteTask = deleteTask;
 // Integrasi Supabase Cloud
 // ============================================================================
 
-function checkSavedCloudCredentials() {
-    const savedUrl = localStorage.getItem(STORAGE_KEYS.SUPABASE_URL);
-    const savedKey = localStorage.getItem(STORAGE_KEYS.SUPABASE_KEY);
+async function checkSavedCloudCredentials() {
+    const savedUrl = localStorage.getItem(STORAGE_KEYS.SUPABASE_URL) || DEFAULT_SUPABASE_CONFIG.URL;
+    const savedKey = localStorage.getItem(STORAGE_KEYS.SUPABASE_KEY) || DEFAULT_SUPABASE_CONFIG.KEY;
 
     if (savedUrl && savedKey && window.supabase) {
-        initSupabase(savedUrl, savedKey, false);
+        await initSupabase(savedUrl, savedKey, false);
     } else {
         updateConnectionStatus(false);
     }
@@ -952,8 +880,8 @@ function updateConnectionStatus(isConnected) {
 
 function openModal() {
     if (!dom.settingsModal) return;
-    dom.supabaseUrlInput.value = localStorage.getItem(STORAGE_KEYS.SUPABASE_URL) || "";
-    dom.supabaseKeyInput.value = localStorage.getItem(STORAGE_KEYS.SUPABASE_KEY) || "";
+    dom.supabaseUrlInput.value = localStorage.getItem(STORAGE_KEYS.SUPABASE_URL) || DEFAULT_SUPABASE_CONFIG.URL;
+    dom.supabaseKeyInput.value = localStorage.getItem(STORAGE_KEYS.SUPABASE_KEY) || DEFAULT_SUPABASE_CONFIG.KEY;
     dom.settingsModal.classList.remove("hidden");
 }
 
@@ -1001,6 +929,83 @@ function escapeHtml(text) {
     return div.innerHTML;
 }
 
+// Deteksi apakah teks pengumpulan mengandung URL/tautan
+function hasSubmissionLink(text) {
+    if (!text) return false;
+    const str = String(text).trim();
+    const urlPattern = /(https?:\/\/[^\s<]+|www\.[^\s<]+|(?:[a-zA-Z0-9-]+\.)+(?:com|edu|gov|org|net|io|ac\.id|go\.id|sch\.id|co\.id|id|app|dev|me|ly)(?:\/[^\s<]*)?)/i;
+    return urlPattern.test(str);
+}
+
+// Konversi otomatis string pengumpulan menjadi tautan interaktif (Hyperlink)
+function formatSubmissionHtml(submission) {
+    if (!submission) {
+        return `<i class="fa-solid fa-arrow-up-from-bracket"></i> LMS Polinema`;
+    }
+    const raw = String(submission).trim();
+    const urlPattern = /(https?:\/\/[^\s<]+|www\.[^\s<]+|(?:[a-zA-Z0-9-]+\.)+(?:com|edu|gov|org|net|io|ac\.id|go\.id|sch\.id|co\.id|id|app|dev|me|ly)(?:\/[^\s<]*)?)/gi;
+
+    if (!urlPattern.test(raw)) {
+        return `<i class="fa-solid fa-arrow-up-from-bracket"></i> ${escapeHtml(raw)}`;
+    }
+
+    urlPattern.lastIndex = 0;
+    const isSingleUrl = raw.match(
+        /^(https?:\/\/[^\s<]+|www\.[^\s<]+|(?:[a-zA-Z0-9-]+\.)+(?:com|edu|gov|org|net|io|ac\.id|go\.id|sch\.id|co\.id|id|app|dev|me|ly)(?:\/[^\s<]*)?)$/i,
+    );
+
+    if (isSingleUrl) {
+        let href = raw;
+        if (!/^https?:\/\//i.test(href)) {
+            href = "https://" + href;
+        }
+
+        // Tampilan label bersih tanpa https:// di awal
+        let displayLabel = raw.replace(/^https?:\/\//i, "").replace(/\/$/, "");
+
+        // Ikon cerdas sesuai domain populer
+        let iconClass = "fa-solid fa-arrow-up-right-from-square";
+        if (/github\.com/i.test(raw)) {
+            iconClass = "fa-brands fa-github";
+        } else if (/drive\.google\.com/i.test(raw)) {
+            iconClass = "fa-brands fa-google-drive";
+        } else if (/classroom\.google\.com/i.test(raw)) {
+            iconClass = "fa-solid fa-graduation-cap";
+        }
+
+        return `
+            <a href="${escapeHtml(href)}" target="_blank" rel="noopener noreferrer" class="submission-hyperlink" title="Buka tautan: ${escapeHtml(href)}" onclick="event.stopPropagation()">
+                <i class="${iconClass}"></i>
+                <span class="submission-link-text">${escapeHtml(displayLabel)}</span>
+            </a>
+        `.trim();
+    }
+
+    // Teks campuran yang mengandung satu atau beberapa link
+    urlPattern.lastIndex = 0;
+    let result = "";
+    let lastIndex = 0;
+    let match;
+
+    while ((match = urlPattern.exec(raw)) !== null) {
+        if (match.index > lastIndex) {
+            result += escapeHtml(raw.substring(lastIndex, match.index));
+        }
+        const urlStr = match[0];
+        let href = urlStr;
+        if (!/^https?:\/\//i.test(href)) {
+            href = "https://" + href;
+        }
+        result += `<a href="${escapeHtml(href)}" target="_blank" rel="noopener noreferrer" class="submission-inline-link" title="Buka tautan: ${escapeHtml(href)}" onclick="event.stopPropagation()">${escapeHtml(urlStr)} <i class="fa-solid fa-arrow-up-right-from-square"></i></a>`;
+        lastIndex = match.index + urlStr.length;
+    }
+    if (lastIndex < raw.length) {
+        result += escapeHtml(raw.substring(lastIndex));
+    }
+
+    return `<i class="fa-solid fa-arrow-up-from-bracket"></i> ${result}`;
+}
+
 // ============================================================================
 // Autentikasi & Sesi Login (Admin: arhte / asdfghjkl;')
 // Sesi aktif selama 1 minggu (7 hari)
@@ -1022,12 +1027,7 @@ function checkAuthSession() {
         }
 
         const session = JSON.parse(raw);
-        if (
-            session &&
-            session.username === AUTH_CONFIG.USERNAME &&
-            session.expiresAt &&
-            Date.now() < session.expiresAt
-        ) {
+        if (session && session.username === AUTH_CONFIG.USERNAME && session.expiresAt && Date.now() < session.expiresAt) {
             state.isLoggedIn = true;
         } else {
             // Sesi habis / kedaluwarsa
